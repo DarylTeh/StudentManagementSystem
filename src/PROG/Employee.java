@@ -9,27 +9,37 @@ package PROG;
  *
  * @author Admin
  */
-class Student extends Assignment{
+class Employee extends Assignment{
 	// declare student properties
+    	private int iID;
 	private String sName;
-	private char cGender;
-	private String sCourse;
-        private String sMobile;
+        private double dSalary;
+        private String sDepartment;
 
 	// initialise student property in constructor
-	Student(String name, char cGender, String course, String mobile) {
-            this.sName = name;
-            this.cGender = cGender;
-            this.sCourse = course;
-            this.sMobile = mobile;
+	Employee(int iID, String sName, double dSalary, String sDepartment) {
+            this.iID = iID;
+            this.sName = sName;
+            this.dSalary = dSalary;
+            this.sDepartment = sDepartment;
 	}
         //function overloading for empty student object
-        Student() {
-            this.sName="";
-            this.cGender=' ';
-            this.sCourse="";
-            this.sMobile="";
+        Employee() {
+            this.iID = 0;
+            this.sName = "";
+            this.dSalary = 0;
+            this.sDepartment = "";
 	}
+        
+        public void setID(int iID) {
+            //this method sets the mobile of an instance of the student object
+            this.iID = iID;
+        }
+        
+        public int getID() {
+            //this method returns the mobile of an instance of the student object
+            return iID;
+        }
         
         public void setName(String name) {
             //this method sets the name of an instance of the student object
@@ -41,38 +51,26 @@ class Student extends Assignment{
             return sName;
         }
         
-        public void setGender(char gender) {
-            //this method sets the gender of an instance of the student object
-            this.cGender = gender;
+        public void setSalary(double dSalary) {
+            //this method sets the ID of an instance of the student object
+            this.dSalary = dSalary;
+        }
+        public double getSalary() {
+            //this method returns the ID of an instance of the student object
+            return dSalary;
         }
         
-        public char getGender() {
-            //this method returns the gender of an instance of the student object
-            return cGender;
+        public void setDepartment(String sDepartment) {
+            this.sDepartment = sDepartment;
         }
         
-        public void setCourse(String course) {
-            //this method sets the course of an instance of the student object
-            this.sCourse = course.trim();
-        }
-        public String getCourse() {
-            //this method returns the course of an instance of the student object
-            return sCourse;
+        public String getDepartment() {
+            return sDepartment;
         }
         
-        public void setMobile(String mobile) {
-            //this method sets the mobile of an instance of the student object
-            this.sMobile = mobile.trim();
-        }
-        
-        public String getMobile() {
-            //this method returns the mobile of an instance of the student object
-            return sMobile;
-        }
-        
-	public String toString(int iNameLength, int iGenderLength, int iCourseLength, int iMobileLength) {
-            //this method adjusts the length of name, gender, course and mobile and assigns it to a string
-            return adjustLength(sName, iNameLength)+"     "+adjustLength(Character.toString(cGender), iGenderLength)+"     "+adjustLength(sCourse, iCourseLength)+"     "+adjustLength(sMobile, iMobileLength);
+	public String toString(int iIDLength, int iNameLength, int iSalaryLength, int iDepartmentLength) {
+            //this method adjusts the length of name, gender, ID and mobile and assigns it to a string
+            return adjustLength(Integer.toString(iID), iIDLength)+"     "+adjustLength(sName, iNameLength)+"     "+adjustLength(Double.toString(dSalary), iSalaryLength)+"     "+adjustLength(sDepartment, iDepartmentLength);
         }
         
         public String padSpace(String sString, int ilength){
@@ -88,7 +86,7 @@ class Student extends Assignment{
         public String toFileString() {
             //used for formatting the file when writing back into the file
             //returns a string that is used when writing to the file
-            return sName+">>"+cGender+">>"+sCourse+">>"+sMobile+">>";
+            return Integer.toString(iID)+">>"+sName+">>"+Double.toString(dSalary)+">>"+sDepartment+">>";
         }
         
         public String adjustLength(String sString, int iLength) {

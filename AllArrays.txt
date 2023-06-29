@@ -1,7 +1,12 @@
-5>>
-Grace Teo>>F>>DIT>>91111111>>
-Peter Low>>M>>DIT>>93333333>>
-Kenny Tan>>M>>DIT>>92222222>>
-Daryl>>M>>DBIT>>91813930>>
-John>>M>>DIT>>91919191>>
+10>>
+18810>>Joe>>4000.0>>Finance>>
+18812>>Calista>>6969.0>>Finance>>
+18813>>Very Long Name Feature testest>>6000.0>>Finance>>
+18814>>Daryl>>6969.0>>Joker>>
+69696>>Denise>>99999.0>>Joker>>
+18811>>Darren>>4000.0>>Finance>>
+18815>>Darren 2>>4.0>>Finance>>
+55553344>>aadfs>>643745.0>>dgfd>>
+63455>>dfggdhdhg>>53546.0>>564456>>
+72391>>uefh>>31911.0>>alaharb>>
 >EndOfFile<
