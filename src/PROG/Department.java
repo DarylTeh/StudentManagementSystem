@@ -42,7 +42,7 @@ public class Department extends Assignment {
                 this.eEmployees[0] = new Employee(iID, sName, dSalary, sDeptName);
             } else {
                 for (Employee emp : eEmployees) {
-                    if (emp != null) {
+                    if (emp != null && emp.getName() != "") {
                         count++;
                     }
                 }
@@ -59,6 +59,10 @@ public class Department extends Assignment {
 
     public Employee[] getDeptEmployees() {
         return eEmployees;
+    }
+    
+    public void setDeptEmployees(Employee[] employees) {
+        this.eEmployees = employees;
     }
 
     // number of employees in 1 dept

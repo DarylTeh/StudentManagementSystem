@@ -28,10 +28,10 @@ public class Assignment {
     static ArrayList<String> deptNames = new ArrayList<String>();
 
     public static void main(String[] args) throws IOException {
-        int iChoice = 0, i = 0, iMaxIDLength = 0, iMaxNameLength = 0, iMaxSalaryLength = 0, iMaxDepartmentLength = 0;
+        int iChoice = 0, i = 0, iMaxIDLength = 0, iMaxNameLength = 0, iMaxSalaryLength = 0, iMaxDepartmentLength = 0, iEmptyDept = 0;
         String sTemp, sName, sID, sSalary, sDepartment;
         double dTotalSalary = 0, dAverageSalary = 0;
-        boolean bChangesMade = false;
+        boolean bChangesMade = false, bDeleteDeptLater = false;
         //begin read file and make employees
         do {
             //check if any changes made to the array that needs to be re-written in the file
@@ -39,11 +39,18 @@ public class Assignment {
                 //write the new information into the file
                 writeFile();
                 bChangesMade = false;
-            } else {
-                employees = new Employee[10];
-                departments = new Department[10];
-                readFile();
+                for (int x = 0; x < iNumDepartments; x++) {
+                    departments[x] = new Department();
+                    iNumEmpInDept = departments[x].getNumEmployees();
+                    for (int j = 0; j < iNumEmpInDept; j++) {
+                        employees[j] = new Employee();
+                    }
+                }
+                iNumDepartments = 0;
+                iNumEmployees = 0;
+                iNumEmpInDept = 0;
             }
+            readFile();
             //display the main menu
             iChoice = mainMenu();
             switch (iChoice) {
@@ -132,6 +139,10 @@ public class Assignment {
                         if (departments[x].getDeptName().equals(sTemp)) {
                             employees = departments[x].getDeptEmployees();
                             iNumEmpInDept = departments[x].getNumEmployees();
+                            if (iNumEmpInDept == 1) { //get ready to set every to null
+                                bDeleteDeptLater = true;
+                                iEmptyDept = x;
+                            }
                         }
                     }
                     if (iNumEmpInDept == 0) {
@@ -159,52 +170,69 @@ public class Assignment {
                                 iNumEmpInDept = iNumEmpInDept - 1;
                                 iNumEmployees = iNumEmployees - 1;
                                 bChangesMade = true;
+                                if (bDeleteDeptLater) {
+                                    departments[iEmptyDept] = new Department();
+                                    bDeleteDeptLater = false;
+                                }
                             } else {
                                 break;
                             }
                         }
-
                     }
                     break;
                 //add
                 case 4: //start the full name search to check if name is already inside the array
-                    sTemp = (String) JOptionPane.showInputDialog(null, "Choose the department", "NCS Employees", JOptionPane.PLAIN_MESSAGE, null, deptNames.toArray(), departments[0]);
-                    for (int x = 0; x < iNumDepartments; x++) {
-                        if (departments[x].getDeptName().equals(sTemp)) {
-                            employees = departments[x].getDeptEmployees();
-                            iNumEmpInDept = departments[x].getNumEmployees();
-                        }
-                    }
-                    if (iNumEmpInDept < 10) {
-                        sName = validateName("Enter the name.", null, "add");//get valid name 
-                        if (sName == null) {
-                            break;
-                        } else if (sName.equals("dupe"))// duplicate
-                        {
-                            errorMsg("The employee is already in the list.");
-                        } else//not duplicate
-                        {
-                            //get the new employee object ready for assigning values
-                            if (sName != null) {
-                                sID = (validateID("Enter the employee ID.", null, "add"));//get a valid id
-                                if (sID != null && !sID.equals("dupe")) {
-                                    sSalary = (validateSalary("Enter the salary.", null));//get a valid salary
-                                    if (sSalary != null) {
-                                        sDepartment = sTemp;//get a valid department
-                                        if (sDepartment != null) {
-                                            i = iNumEmpInDept;
-                                            employees[i] = new Employee(Integer.parseInt(sID), sName, Double.parseDouble(sSalary), sDepartment);
-                                            JOptionPane.showMessageDialog(null, employees[i].getName() + " has been added successfully.");
-                                            iNumEmpInDept = iNumEmpInDept + 1;
-                                            iNumEmployees = iNumEmployees + 1;
-                                            bChangesMade = true;
+
+                    sName = validateName("Enter the name to check if this employee exists.", null, "add");//get valid name 
+                    if (sName == null) {
+                        break;
+                    } else if (sName.equals("dupe"))// duplicate
+                    {
+                        errorMsg("The employee is already in the list.");
+                    } else//not duplicate
+                    {
+                        //get the new employee object ready for assigning values
+                        if (sName != null) {
+                            sID = (validateID("Enter the employee ID.", null, "add"));//get a valid id
+                            if (sID != null && !sID.equals("dupe")) {
+                                sSalary = (validateSalary("Enter the salary.", null));//get a valid salary
+                                if (sSalary != null) {
+                                    sDepartment = (validateDepartment("Enter the department.", null));//get a valid department
+                                    if (sDepartment != null) {
+                                        //if new dept then make new dept and add employee
+                                        for (int j = 0; j < iNumDepartments; j++) {
+                                            if (departments[j].getDeptName().equalsIgnoreCase(sDepartment)) {
+                                                //if existing dept, just add employee
+                                                if (bChangesMade == false) {
+                                                    if (departments[j].getNumEmployees() < 10) {
+                                                        departments[j].addDeptEmployee(Integer.parseInt(sID), sName, Double.parseDouble(sSalary), sDepartment);
+                                                        JOptionPane.showMessageDialog(null, sName + " has been added successfully.");
+                                                        iNumEmployees = iNumEmployees + 1;
+                                                    } else {
+                                                        errorMsg("You cannot have more than 10 employees in 1 Department");
+                                                    }
+                                                    bChangesMade = true;
+                                                }
+                                            }
+
+                                            if (bChangesMade == false) {
+                                                if (!departments[j].getDeptName().equalsIgnoreCase(sDepartment)) { //if this a new department, create the dept array and throw employee inside
+                                                    if (j == iNumDepartments - 1) {
+                                                        departments[iNumDepartments] = new Department();
+                                                        departments[iNumDepartments].setDeptName(sDepartment);
+                                                        departments[iNumDepartments].addDeptEmployee(Integer.parseInt(sID), sName, Double.parseDouble(sSalary), sDepartment);
+                                                        JOptionPane.showMessageDialog(null, sName + " has been added successfully. WOOHOO");
+                                                        iNumDepartments = iNumDepartments + 1;
+                                                        iNumEmployees = iNumEmployees + 1;
+                                                        bChangesMade = true;
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "You cannot have more than 10 employees.");
                     }
                     break;
                 //edit        
@@ -214,6 +242,10 @@ public class Assignment {
                         if (departments[x].getDeptName().equals(sTemp)) {
                             employees = departments[x].getDeptEmployees();
                             iNumEmpInDept = departments[x].getNumEmployees();
+                            if (iNumEmpInDept == 1) { //get ready to set every to null
+                                bDeleteDeptLater = true;
+                                iEmptyDept = x;
+                            }
                         }
                     }
                     if (iNumEmpInDept == 0) {
@@ -228,18 +260,62 @@ public class Assignment {
                         } else {
                             sName = (validateName("Enter the new name.", employees[i].getName(), "edit"));//get a valid name
                             if (sName != null) {
-                                employees[i].setName(sName);
                                 sID = (validateID("Enter the id.", Integer.toString(employees[i].getID()), "edit"));//get a valid id
                                 if (sID != null) {
-                                    employees[i].setID(Integer.parseInt(sID));
                                     sSalary = (validateSalary("Enter the salary.", Double.toString(employees[i].getSalary())));//get a valid salary
                                     if (sSalary != null) {
-                                        employees[i].setSalary(Double.parseDouble(sSalary));
                                         sDepartment = (validateDepartment("Enter the department.", employees[i].getDepartment()));//get a valid department
                                         if (sDepartment != null) {
-                                            employees[i].setDepartment(sDepartment);
                                             JOptionPane.showMessageDialog(null, employees[i].getName() + " has been edited successfully.");
-                                            bChangesMade = true;
+
+                                            //if new dept then make new dept and add employee
+                                            for (int j = 0; j < iNumDepartments; j++) {
+                                                if (bChangesMade == false) {
+                                                    if (departments[j].getDeptName().equalsIgnoreCase(sDepartment)) {
+                                                        //if existing dept, just add employee
+                                                        if (departments[j].getNumEmployees() < 10) {
+                                                            departments[j].addDeptEmployee(Integer.parseInt(sID), sName, Double.parseDouble(sSalary), sDepartment);
+                                                            JOptionPane.showMessageDialog(null, sName + " has been added successfully.");
+                                                            //need to remove old employee element
+                                                            employees[i] = new Employee();
+                                                            for (int x = 0; x < iNumDepartments; x++) {
+                                                                if (departments[x].getDeptName().equals(sTemp)) {
+                                                                    departments[x].setDeptEmployees(employees);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            errorMsg("You cannot have more than 10 employees in 1 Department");
+                                                            bDeleteDeptLater = false;
+                                                            j = iNumDepartments;
+                                                        }
+                                                        bChangesMade = true;
+                                                    }
+                                                }
+                                                if (bChangesMade == false) {
+                                                    if (!departments[j].getDeptName().equalsIgnoreCase(sDepartment)) { //if this a new department, create the dept array and throw employee inside
+                                                        if (j == iNumDepartments - 1) {
+                                                            departments[iNumDepartments] = new Department();
+                                                            departments[iNumDepartments].setDeptName(sDepartment);
+                                                            departments[iNumDepartments].addDeptEmployee(Integer.parseInt(sID), sName, Double.parseDouble(sSalary), sDepartment);
+                                                            JOptionPane.showMessageDialog(null, sName + " has been added successfully. WOOHOO");
+                                                            //need to remove old employee element
+                                                            employees[i] = new Employee();
+                                                            for (int x = 0; x < iNumDepartments; x++) {
+                                                                if (departments[x].getDeptName().equals(sTemp)) {
+                                                                    departments[x].setDeptEmployees(employees);
+                                                                }
+                                                            }
+                                                            iNumDepartments = iNumDepartments + 1;
+                                                            bChangesMade = true;
+                                                        }
+                                                        j = iNumDepartments;
+                                                    }
+                                                }
+                                            }
+                                            if (bDeleteDeptLater) {
+                                                departments[iEmptyDept] = new Department();
+                                                bDeleteDeptLater = false;
+                                            }
                                         }
                                     }
                                 }
@@ -247,7 +323,8 @@ public class Assignment {
                         }
                     }
                     break;
-                //exit        
+                //exit      
+
                 case 6:
                     JOptionPane.showMessageDialog(null, "Program Terminated.\nThank You!");
                     break;
@@ -276,7 +353,9 @@ public class Assignment {
                         break;
                     }
             }
-        } while (iChoice != 6);
+
+        } while (iChoice
+                != 6);
     }//end of main
 
     public static void readFile() throws IOException {
@@ -285,6 +364,7 @@ public class Assignment {
         Scanner readFile = new Scanner(info);
         readFile.useDelimiter(">>");
         String sTemp, sName, sID, sSalary, sDepartment = "";
+        deptNames.clear();
         // check if file is empty
         if (!readFile.hasNext()) {
             errorMsg("The file 'AllArrays.txt' is empty.");
@@ -335,10 +415,19 @@ public class Assignment {
     public static void writeFile() throws IOException {
         //re-write the data in the array back into the file
         String sTemp = "";
+        //if any dept employee array is empty just delete the dept
+        for (int i = 0; i < iNumDepartments; i++) {
+            if (departments[i].getNumEmployees() == 0) {
+                iNumDepartments = iNumDepartments - 1;
+                departments[i] = new Department();
+            }
+        }
         try (FileWriter fileWriter = new FileWriter("AllArrays.txt")) {
             fileWriter.write(iNumDepartments + ">>" + iNumEmployees + ">>" + System.lineSeparator());
             for (int i = 0; i < iNumDepartments; i++) {
-                sTemp += departments[i].toFileString();
+                if (departments[i].getDeptName() != null) {
+                    sTemp += departments[i].toFileString();
+                }
             }
             fileWriter.write(sTemp + System.lineSeparator());
             for (int x = 0; x < iNumDepartments; x++) {
@@ -526,8 +615,8 @@ public class Assignment {
             sSalary = (String) JOptionPane.showInputDialog(null, sError + sText, "NCS Employees",
                     JOptionPane.QUESTION_MESSAGE, null, null, sSalary);
 
-            if (Pattern.matches("-?\\d+(\\.\\d+)?", sSalary)) {
-                if (sSalary != null) {
+            if (sSalary != null) {
+                if (Pattern.matches("-?\\d+(\\.\\d+)?", sSalary)) {
                     sSalary = sSalary.trim();
                     if (Double.parseDouble(sSalary) <= 100) {
                         bError = true;
@@ -562,9 +651,9 @@ public class Assignment {
 
             if (sID != null) {
                 sID = sID.trim();
-                if (sID.length() < 4) {
+                if (sID.length() < 2) {
                     bError = true;
-                    sError = "ID length cannot be less than 4\n\n";
+                    sError = "ID length cannot be less than 2\n\n";
                 } else {
                     if (!Pattern.matches("[0-9]+", sID)) {
                         bError = true;
@@ -596,11 +685,12 @@ public class Assignment {
             switch (iChoice) {
                 //get the max length
                 case 1:
-                    System.out.println(iNumEmpInDept);
                     if (employees[i].getName() != null) {
                         if (employees[i].getName().length() > iLength) {
                             iLength = employees[i].getName().length();
-                            if (iLength > 20) {
+                            if (iLength < 6) {
+                                iLength = 6;
+                            } else if (iLength > 20) {
                                 iLength = 20;
                             }
                         }
